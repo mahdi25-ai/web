@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesmen IPS – Perubahan Sosial</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- SheetJS CDN for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased flex flex-col min-h-screen">
+
+    <!-- Notification / Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md pointer-events-none"></div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="flex-1 flex flex-col">
+
+        <!-- ================================================================= -->
+        <!-- 1. HALAMAN AWAL SISWA (LOGIN SISWA) -->
+        <!-- ================================================================= -->
+        <div id="view-student-login" class="flex-1 flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-brand-800 to-indigo-900">
+            <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg border border-white/20 my-auto">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-100 text-brand-600 mb-4 shadow-inner">
+                        <i data-lucide="book-open" class="w-8 h-8"></i>
+                    </div>
+                    <span class="inline-block px-3 py-1 bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider rounded-full mb-2">Asesmen Pembelajaran IPS</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Perubahan Sosial</h1>
+                    <p class="text-slate-500 text-sm mt-1">Mata Pelajaran IPS Kelas IX SMP / MTs</p>
+                </div>
+
+                <!-- Informasi Ketentuan Ujian -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 text-xs sm:text-sm text-slate-600 space-y-2">
+                    <div class="flex items-center justify-between font-semibold text-slate-700 pb-2 border-b border-slate-200">
+                        <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-4 h-4 text-brand-600"></i> Jumlah Soal:</span>
+                        <span class="text-brand-700 font-bold">25 Soal Pilihan Ganda</span>
+                    </div>
+                    <div class="flex items-center justify-between font-semibold text-slate-700 pb-2 border-b border-slate-200">
+                        <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4 text-brand-600"></i> Durasi Waktu:</span>
+                        <span class="text-brand-700 font-bold">70 Menit</span>
+                    </div>
+                    <div class="pt-1 text-slate-500 leading-relaxed text-xs">
+                        <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1 text-amber-500"></i>
+                        Pastikan koneksi stabil. Jawaban akan tersimpan secara otomatis. Soal dan pilihan jawaban disajikan secara acak.
+                    </div>
+                </div>
+
+                <!-- Form Identitas Siswa -->
+                <form id="form-student-login" class="space-y-4" onsubmit="event.preventDefault(); startExam();">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Lengkap Siswa <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="input-student-name" required placeholder="Contoh: Ahmad Rizky" 
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Kelas <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <i data-lucide="users" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <select id="input-student-class" required 
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm bg-white">
+                                    <option value="" disabled selected>Pilih Kelas</option>
+                                    <option value="9A">Kelas 9A</option>
+                                    <option value="9B">Kelas 9B</option>
+                                    <option value="9C">Kelas 9C</option>
+                                    <option value="9D">Kelas 9D</option>
+                                    <option value="9E">Kelas 9E</option>
+                                    <option value="9F">Kelas 9F</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor Absen <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <i data-lucide="hash" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="number" id="input-student-absent" required min="1" max="50" placeholder="1 - 40" 
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" 
+                        class="w-full py-3.5 px-6 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold shadow-lg shadow-brand-500/30 transition flex items-center justify-center gap-2 group mt-2">
+                        <span>Mulai Mengerjakan Ujian</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </form>
+
+                <!-- Shortcut Akses Guru -->
+                <div class="mt-6 pt-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500">
+                    <span>Portal Khusus Pengajar:</span>
+                    <button onclick="switchView('teacher-login')" class="text-brand-600 hover:text-brand-800 font-semibold flex items-center gap-1">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span>Dashboard Guru</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- 2. INTERFACE PENGERJAAN UJIAN (STUDENT EXAM VIEW) -->
+        <!-- ================================================================= -->
+        <div id="view-student-exam" class="hidden flex-1 flex flex-col bg-slate-100">
+            <!-- Header Informasi & Timer Persistent -->
+            <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+                    <!-- Data Siswa Singkat -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm shadow-inner shrink-0" id="exam-avatar-absen">
+                            00
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-slate-900 text-sm sm:text-base leading-tight" id="exam-student-name">Nama Siswa</h2>
+                            <p class="text-xs text-slate-500" id="exam-student-class-info">Kelas: 9A | No. Absen: 01</p>
+                        </div>
+                    </div>
+
+                    <!-- Countdown Timer & Autosave Badge -->
+                    <div class="flex items-center gap-3 ml-auto sm:ml-0">
+                        <div id="autosave-indicator" class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full">
+                            <i data-lucide="cloud-check" class="w-4 h-4 text-emerald-500"></i>
+                            <span>Tersimpan</span>
+                        </div>
+
+                        <div id="timer-box" class="flex items-center gap-2 bg-slate-900 text-white font-mono text-lg font-bold px-4 py-2 rounded-xl shadow transition-colors">
+                            <i data-lucide="timer" class="w-5 h-5 text-amber-400 animate-pulse"></i>
+                            <span id="exam-timer">70:00</span>
+                        </div>
+
+                        <button onclick="toggleNavigatorDrawer()" class="md:hidden p-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-slate-200">
+                            <i data-lucide="grid" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Warning Bar saat Waktu Kritis -->
+                <div id="time-warning-banner" class="hidden bg-amber-500 text-slate-950 font-semibold px-4 py-1.5 text-center text-xs sm:text-sm flex items-center justify-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+                    <span id="time-warning-text">Peringatan: Waktu pengerjaan tersisa kurang dari 10 menit!</span>
+                </div>
+            </header>
+
+            <!-- Body Konten Soal & Navigasi -->
+            <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                
+                <!-- Panel Utama Soal (Kolom Kiri 8 col di desktop) -->
+                <div class="md:col-span-8 lg:col-span-9 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-7 flex flex-col min-h-[500px]">
+                    <!-- Question Header Info -->
+                    <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 bg-brand-100 text-brand-700 font-extrabold text-sm rounded-lg" id="display-q-number">Soal 1 dari 25</span>
+                            <span id="display-q-difficulty" class="text-xs px-2.5 py-1 rounded-full font-medium bg-slate-100 text-slate-600">Sedang</span>
+                        </div>
+                        <span class="text-xs text-slate-500" id="display-answered-counter">Sudah dijawab: 0/25</span>
+                    </div>
+
+                    <!-- Teks Soal -->
+                    <div class="flex-1 text-slate-800 text-base sm:text-lg leading-relaxed font-medium mb-6" id="display-q-text">
+                        Memuat pertanyaan...
+                    </div>
+
+                    <!-- Pilihan Jawaban (A, B, C, D) -->
+                    <div class="space-y-3 mb-8" id="display-q-options">
+                        <!-- Dimuat secara dinamis via JS -->
+                    </div>
+
+                    <!-- Navigasi Bawah (Sebelumnya / Selanjutnya / Kumpulkan) -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3 mt-auto">
+                        <button id="btn-prev-question" onclick="navigateQuestion(-1)" 
+                            class="px-5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 text-sm transition">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            <span>Sebelumnya</span>
+                        </button>
+
+                        <button id="btn-next-question" onclick="navigateQuestion(1)" 
+                            class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold flex items-center gap-1.5 text-sm transition shadow-sm">
+                            <span>Berikutnya</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+
+                        <button id="btn-submit-exam" onclick="confirmSubmitExam()" 
+                            class="hidden px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 text-sm transition shadow-md shadow-emerald-600/20">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                            <span>Kumpulkan Ujian</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel Navigasi Nomor Soal (Kolom Kanan 4 col) -->
+                <div id="question-navigator-drawer" class="md:col-span-4 lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sticky top-20">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <i data-lucide="layout-grid" class="w-4 h-4 text-brand-600"></i>
+                            <span>Navigasi Soal</span>
+                        </h3>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-600 rounded" id="navigator-progress-percent">0%</span>
+                    </div>
+
+                    <!-- Status Indikator Warna -->
+                    <div class="flex items-center justify-around text-xs text-slate-500 mb-4 bg-slate-50 p-2.5 rounded-xl">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-brand-600 inline-block"></span>
+                            <span>Sudah</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 inline-block"></span>
+                            <span>Belum</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full ring-2 ring-brand-600 bg-white inline-block"></span>
+                            <span>Aktif</span>
+                        </div>
+                    </div>
+
+                    <!-- Grid Nomor Soal 1-25 -->
+                    <div id="navigator-grid" class="grid grid-cols-5 gap-2 max-h-[320px] overflow-y-auto p-1">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <button onclick="confirmSubmitExam()" class="w-full py-2.5 px-4 rounded-xl border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-sm transition flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>Selesaikan Ujian</span>
+                        </button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- 3. HALAMAN HASIL SISWA (STUDENT RESULT VIEW) -->
+        <!-- ================================================================= -->
+        <div id="view-student-result" class="hidden flex-1 flex items-center justify-center p-4 sm:p-6 bg-slate-100">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-6 sm:p-10 w-full max-w-xl text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 mb-4 shadow-inner">
+                    <i data-lucide="award" class="w-10 h-10"></i>
+                </div>
+                
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Ujian Berhasil Dikumpulkan!</h1>
+                <p class="text-slate-500 text-sm mt-1">Terima kasih telah menyelesaikan Asesmen IPS Perubahan Sosial.</p>
+
+                <!-- Identitas Siswa -->
+                <div class="bg-slate-50 rounded-2xl p-4 my-6 text-left border border-slate-200">
+                    <div class="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+                        <div>
+                            <span class="text-slate-400 block">Nama Siswa:</span>
+                            <span class="font-bold text-slate-800" id="res-student-name">-</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">Kelas / Absen:</span>
+                            <span class="font-bold text-slate-800" id="res-student-class">-</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-slate-400 block">Waktu Selesai:</span>
+                            <span class="font-bold text-slate-800" id="res-student-time">-</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-slate-400 block">Durasi Pengerjaan:</span>
+                            <span class="font-bold text-slate-800" id="res-student-duration">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Skor / Nilai Akhir -->
+                <div class="bg-gradient-to-br from-brand-600 to-indigo-700 text-white rounded-2xl p-6 shadow-lg mb-6">
+                    <span class="text-xs uppercase tracking-widest text-brand-200 font-bold">Nilai Akhir Ujian</span>
+                    <div class="text-5xl sm:text-6xl font-extrabold my-2" id="res-score-number">0.0</div>
+                    <p class="text-xs text-brand-100" id="res-score-status">Rumus: (Jumlah Benar / 25) × 100</p>
+                </div>
+
+                <!-- Breakdown Jawaban -->
+                <div class="grid grid-cols-3 gap-3 text-center mb-6">
+                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                        <span class="block text-xs font-semibold text-emerald-700">Benar</span>
+                        <span class="text-xl font-bold text-emerald-800" id="res-correct-count">0</span>
+                    </div>
+                    <div class="p-3 bg-red-50 border border-red-200 rounded-xl">
+                        <span class="block text-xs font-semibold text-red-700">Salah</span>
+                        <span class="text-xl font-bold text-red-800" id="res-incorrect-count">0</span>
+                    </div>
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                        <span class="block text-xs font-semibold text-amber-700">Kosong</span>
+                        <span class="text-xl font-bold text-amber-800" id="res-unanswered-count">0</span>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-500 text-xs mb-6 text-left">
+                    <i data-lucide="shield-alert" class="w-4 h-4 inline mr-1 text-brand-600"></i>
+                    Nilai dan rincian pengerjaan Anda telah tersimpan secara realtime di database guru. Kunci jawaban dan pembahasan dapat ditanyakan langsung kepada guru pengampu.
+                </div>
+
+                <button onclick="window.location.reload()" class="w-full py-3 px-6 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-sm transition">
+                    Kembali ke Halaman Utama
+                </button>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- 4. DASHBOARD GURU / ADMIN -->
+        <!-- ================================================================= -->
+        <!-- 4A. Auth Guru -->
+        <div id="view-teacher-login" class="hidden flex-1 flex items-center justify-center p-4 sm:p-6 bg-slate-900">
+            <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-100 text-brand-600 mb-3">
+                        <i data-lucide="lock" class="w-7 h-7"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900">Autentikasi Pengajar</h2>
+                    <p class="text-xs text-slate-500 mt-1">Masukkan kata sandi/PIN untuk mengakses Dashboard Guru</p>
+                </div>
+
+                <form onsubmit="event.preventDefault(); verifyTeacherPass();" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">PIN / Password Guru</label>
+                        <input type="password" id="input-teacher-pass" placeholder="Default: guru123" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                        <span class="text-[11px] text-slate-400 mt-1 block">PIN standar untuk demo: <strong class="text-slate-600">guru123</strong></span>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm transition shadow-md">
+                        Masuk Dashboard
+                    </button>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <button onclick="switchView('student-login')" class="text-xs text-slate-500 hover:text-slate-700 underline">
+                        &larr; Kembali ke Mode Siswa
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4B. Dashboard Monitoring Realtime Guru -->
+        <div id="view-teacher-dashboard" class="hidden flex-1 flex flex-col bg-slate-100">
+            <!-- Header Teacher -->
+            <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-brand-600 rounded-xl text-white">
+                            <i data-lucide="monitor" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold leading-tight">Dashboard Monitoring Guru</h1>
+                            <p class="text-xs text-slate-400">Asesmen IPS – Perubahan Sosial (25 Soal)</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportToExcel()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 transition shadow">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                            <span>Export Excel (.xlsx)</span>
+                        </button>
+                        <button onclick="openDeploymentModal()" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition" title="Petunjuk Bagikan Link">
+                            <i data-lucide="share-2" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Bagikan Link</span>
+                        </button>
+                        <button onclick="switchView('student-login')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition" title="Keluar Modal Guru">
+                            <i data-lucide="log-out" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+                <!-- Summary KPI Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <span class="text-xs text-slate-500 font-medium block">Total Siswa</span>
+                        <span class="text-2xl font-extrabold text-slate-900 mt-1 block" id="kpi-total-students">0</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <span class="text-xs text-emerald-600 font-medium block flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Selesai
+                        </span>
+                        <span class="text-2xl font-extrabold text-emerald-600 mt-1 block" id="kpi-completed-students">0</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <span class="text-xs text-amber-600 font-medium block flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span> Mengerjakan
+                        </span>
+                        <span class="text-2xl font-extrabold text-amber-600 mt-1 block" id="kpi-in-progress-students">0</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <span class="text-xs text-brand-600 font-medium block">Rata-rata Nilai</span>
+                        <span class="text-2xl font-extrabold text-brand-600 mt-1 block" id="kpi-avg-score">0.0</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <span class="text-xs text-slate-500 font-medium block">Nilai Tertinggi / Terendah</span>
+                        <div class="text-lg font-bold text-slate-800 mt-1">
+                            <span class="text-emerald-600" id="kpi-max-score">0</span> / <span class="text-red-600" id="kpi-min-score">0</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <span class="text-xs text-slate-500 font-medium block">Persentase Ketuntasan</span>
+                        <span class="text-2xl font-extrabold text-indigo-600 mt-1 block" id="kpi-passing-rate">0%</span>
+                    </div>
+                </div>
+
+                <!-- Controls & Filter Toolbar -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        <!-- Search Name -->
+                        <div class="relative flex-1 min-w-[200px]">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="teacher-search" oninput="renderTeacherTable()" placeholder="Cari nama siswa..." 
+                                class="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none">
+                        </div>
+
+                        <!-- Filter Kelas -->
+                        <select id="teacher-filter-class" onchange="renderTeacherTable()" 
+                            class="px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white">
+                            <option value="ALL">Semua Kelas</option>
+                            <option value="9A">Kelas 9A</option>
+                            <option value="9B">Kelas 9B</option>
+                            <option value="9C">Kelas 9C</option>
+                            <option value="9D">Kelas 9D</option>
+                            <option value="9E">Kelas 9E</option>
+                            <option value="9F">Kelas 9F</option>
+                        </select>
+
+                        <!-- Filter Status -->
+                        <select id="teacher-filter-status" onchange="renderTeacherTable()" 
+                            class="px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white">
+                            <option value="ALL">Semua Status</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Sedang Mengerjakan">Sedang Mengerjakan</option>
+                            <option value="Waktu Habis">Waktu Habis</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-3 ml-auto text-xs">
+                        <!-- Setting KKM -->
+                        <div class="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                            <label class="font-bold text-slate-600">KKM:</label>
+                            <input type="number" id="setting-kkm" value="75" min="0" max="100" onchange="updateKKM(this.value)"
+                                class="w-14 px-2 py-0.5 rounded border border-slate-300 text-center font-bold text-slate-800">
+                        </div>
+
+                        <button onclick="switchTeacherTab('table')" id="tab-btn-table" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white font-semibold">
+                            Tabel Nilai
+                        </button>
+                        <button onclick="switchTeacherTab('analytics')" id="tab-btn-analytics" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold">
+                            Analisis Soal
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 1: Tabel Hasil Realtime Siswa -->
+                <div id="teacher-tab-table" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-bold text-[11px] tracking-wider">
+                                    <th class="py-3 px-4">No</th>
+                                    <th class="py-3 px-4">Nama Siswa</th>
+                                    <th class="py-3 px-4">Kelas</th>
+                                    <th class="py-3 px-4 text-center">Absen</th>
+                                    <th class="py-3 px-4">Waktu Mulai</th>
+                                    <th class="py-3 px-4">Waktu Selesai</th>
+                                    <th class="py-3 px-4">Durasi</th>
+                                    <th class="py-3 px-4 text-center">B / S / K</th>
+                                    <th class="py-3 px-4 text-right cursor-pointer hover:text-brand-600" onclick="toggleSortScore()">
+                                        Nilai <i data-lucide="arrow-up-down" class="w-3 h-3 inline"></i>
+                                    </th>
+                                    <th class="py-3 px-4 text-center">Status</th>
+                                    <th class="py-3 px-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacher-table-body" class="divide-y divide-slate-100 text-slate-700">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="teacher-table-empty" class="hidden p-8 text-center text-slate-400 text-sm">
+                        Belum ada data siswa yang mengerjakan asesmen.
+                    </div>
+                </div>
+
+                <!-- Tab 2: Analisis Butir Soal -->
+                <div id="teacher-tab-analytics" class="hidden space-y-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 text-base mb-1">Analisis Butir Soal & Tingkat Kesulitan</h3>
+                        <p class="text-xs text-slate-500 mb-4">Statistik distribusi pilihan jawaban siswa pada tiap nomor soal.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="item-analysis-container">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+    </div>
+
+    <!-- MODAL POPUP SUBMIT CONFIRMATION -->
+    <div id="modal-submit-confirm" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full text-center space-y-4">
+            <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="help-circle" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">Konfirmasi Pengumpulan Ujian</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Apakah Anda yakin ingin mengumpulkan jawaban ujian sekarang? <br>
+                <strong class="text-red-600">Setelah dikumpulkan, jawaban tidak dapat diubah lagi.</strong>
+            </p>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-left text-xs space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Jumlah dijawab:</span> <strong id="modal-answered-count" class="text-emerald-600">0 / 25</strong></div>
+                <div class="flex justify-between"><span>Belum dijawab:</span> <strong id="modal-unanswered-count" class="text-amber-600">0</strong></div>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeModal('modal-submit-confirm')" class="flex-1 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-50">
+                    Periksa Kembali
+                </button>
+                <button onclick="submitExamFinal()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md">
+                    Ya, Kumpulkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DEPLOYMENT & BAGIKAN LINK -->
+    <div id="modal-deployment" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-xl w-full space-y-4 text-xs sm:text-sm">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <i data-lucide="share-2" class="w-5 h-5 text-brand-600"></i>
+                    <span>Panduan Pembagian Link Ujian ke Siswa</span>
+                </h3>
+                <button onclick="closeModal('modal-deployment')" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-slate-600 leading-relaxed">
+                <p>Aplikasi ini bersifat <strong>Single-File Self-Contained Web App</strong> yang dapat disebarkan secara instan melalui link publik tanpa perlu setting server terpisah.</p>
+                
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <strong class="text-slate-800 block font-bold">Opsi Publikasi Gratis (Deploy Instan):</strong>
+                    <ol class="list-decimal pl-4 space-y-1">
+                        <li><strong>Vercel / Netlify:</strong> Upload file <code>index.html</code> ini ke repository GitHub atau drag-and-drop langsung ke dashboard Netlify Drop.</li>
+                        <li><strong>GitHub Pages:</strong> Simpan file sebagai <code>index.html</code> pada repository publik GitHub, lalu aktifkan GitHub Pages pada menu Settings.</li>
+                        <li><strong>Firebase Hosting:</strong> Inisialisasi Firebase CLI dan deploy folder statis.</li>
+                    </ol>
+                </div>
+
+                <div class="p-3 bg-brand-50 border border-brand-200 rounded-xl text-brand-800">
+                    <span class="font-bold block mb-1">Link Ujian Siswa saat ini:</span>
+                    <div class="flex gap-2">
+                        <input type="text" id="current-url-display" readonly class="w-full bg-white px-3 py-1.5 rounded border border-brand-300 font-mono text-xs">
+                        <button onclick="copyAppUrl()" class="px-3 py-1.5 bg-brand-600 text-white font-bold rounded hover:bg-brand-700 shrink-0">
+                            Salin Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-right pt-2">
+                <button onclick="closeModal('modal-deployment')" class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- LOGIKA JAVASCRIPT & DATA BANK SOAL -->
+    <!-- ================================================================= -->
+    <!-- Firebase Standard Integration via ES Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'asesmen-ips-perubahan-sosial';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : { apiKey: "demo-key", authDomain: "demo.firebaseapp.com", projectId: "demo-project" };
+
+        let app, db, auth, currentUser = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            // Authentication setup
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                currentUser = auth.currentUser;
+                listenToTeacherData();
+            };
+            initAuth().catch(console.error);
+        } catch (err) {
+            console.warn("Firebase fallback initialized in local storage mode", err);
+        }
+
+        // ===================================================================
+        // MASTER 25 SOAL IPS - PERUBAHAN SOSIAL
+        // ===================================================================
+        const QUESTION_BANK = [
+            {
+                id: 1,
+                question: "Manakah pernyataan di bawah ini yang paling tepat mendefinisikan konsep perubahan sosial dalam masyarakat?",
+                options: [
+                    "Perubahan gaya berpakaian remaja yang selalu mengikuti tren budaya Barat setiap tahun.",
+                    "Perubahan struktur, norma, nilai, dan pola perilaku dalam lembaga kemasyarakatan dari waktu ke waktu.",
+                    "Perpindahan penduduk secara besar-besaran dari wilayah pedesaan menuju kawasan perkotaan.",
+                    "Pertambahan jumlah penduduk yang cepat sehingga mengakibatkan kelangkaan sumber daya alam."
+                ],
+                answerIndex: 1, // B
+                difficulty: "Mudah",
+                topic: "Pengertian Perubahan Sosial"
+            },
+            {
+                id: 2,
+                question: "Di bawah ini yang merupakan salah satu ciri utama dari perubahan sosial yang terjadi di masyarakat adalah...",
+                options: [
+                    "Hanya dialami oleh masyarakat perkotaan yang berpendidikan tinggi.",
+                    "Terjadi secara serentak di seluruh kawasan tanpa ada perbedaan waktu.",
+                    "Tidak ada masyarakat yang berhenti berkembang karena perubahan bersifat berkelanjutan.",
+                    "Selalu membawa dampak keuntungan dan kenyamanan bagi seluruh warga."
+                ],
+                answerIndex: 2, // C
+                difficulty: "Mudah",
+                topic: "Ciri Perubahan Sosial"
+            },
+            {
+                id: 3,
+                question: "Pemerintah mencanangkan program Keluarga Berencana (KB) untuk menekan laju pertumbuhan penduduk. Dilihat dari faktor penyebabnya, perubahan struktur demografi akibat penurunan angka kelahiran merupakan contoh perubahan sosial yang dipicu oleh faktor...",
+                options: [
+                    "Internal (dinamika kependudukan)",
+                    "Eksternal (pengaruh lingkungan alam)",
+                    "Infiltrasi budaya asing",
+                    "Konflik antar kelompok masyarakat"
+                ],
+                answerIndex: 0, // A
+                difficulty: "Sedang",
+                topic: "Faktor Penyebab Internal"
+            },
+            {
+                id: 4,
+                question: "Penemuan smartphone dan internet mengubah pola interaksi masyarakat Indonesia, di mana komunikasi tatap muka berkurang dan berpindah ke media sosial. Hal ini merupakan contoh perubahan sosial yang disebabkan oleh penemuan baru (inovasi) berupa...",
+                options: [
+                    "Discovery yang dipaksakan",
+                    "Invention yang memicu perubahan di berbagai bidang kehidupan",
+                    "Bencana alam yang mengubah geografis",
+                    "Evolusi alami tanpa ada rancangan teknologi"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sedang",
+                topic: "Penemuan Baru"
+            },
+            {
+                id: 5,
+                question: "Konflik horizontal antar suku atau golongan di suatu daerah dapat menyebabkan rusaknya tatanan sosial, trauma psikologis, serta perubahan norma keamanan setempat. Dalam konteks ini, konflik berfungsi sebagai...",
+                options: [
+                    "Faktor penghambat kemajuan teknologi",
+                    "Faktor internal pendorong perubahan sosial",
+                    "Dampak positif dari integrasi bangsa",
+                    "Bentuk perubahan sosial yang direncanakan oleh pemerintah"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sedang",
+                topic: "Konflik Sosial"
+            },
+            {
+                id: 6,
+                question: "Bencana gempa bumi dan tsunami yang melanda suatu wilayah pesisir memaksa warga berpindah permukiman dan mengubah mata pencaharian mereka dari nelayan menjadi petani budidaya lahan kering. Perubahan sosial ini dipicu oleh faktor eksternal berupa...",
+                options: [
+                    "Perubahan kondisi lingkungan alam",
+                    "Pengaruh kebudayaan masyarakat lain",
+                    "Pertentangan kelas sosial",
+                    "Penemuan teknologi rekayasa lahan"
+                ],
+                answerIndex: 0, // A
+                difficulty: "Mudah",
+                topic: "Faktor Penyebab Eksternal"
+            },
+            {
+                id: 7,
+                question: "Masyarakat yang memiliki sikap terbuka terhadap ide baru, berpendidikan tinggi, serta menghargai karya orang lain cenderung mengalami perubahan sosial secara lebih cepat. Hal tersebut merupakan contoh dari...",
+                options: [
+                    "Faktor penghambat perubahan sosial",
+                    "Faktor pendorong perubahan sosial",
+                    "Ciri masyarakat yang terisolasi",
+                    "Dampak negatif modernisasi"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Mudah",
+                topic: "Faktor Pendorong"
+            },
+            {
+                id: 8,
+                question: "Sikap masyarakat tradisional yang sangat mengagungkan adat istiadat leluhur serta merasa khawatir nilai budayanya akan rusak oleh hal baru, merupakan faktor yang dapat...",
+                options: [
+                    "Mempercepat proses integrasi global",
+                    "Menghambat terjadinya perubahan sosial",
+                    "Mendorong munculnya inovasi teknologi modern",
+                    "Menciptakan kesetaraan derajat sosial"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sedang",
+                topic: "Faktor Penghambat"
+            },
+            {
+                id: 9,
+                question: "Pembangunan sistem jalan tol layang dan kereta cepat di Indonesia dirancang oleh pemerintah untuk memperlancar arus logistik dan mobilitas warga. Jenis perubahan ini dikategorikan sebagai...",
+                options: [
+                    "Perubahan sosial yang tidak direncanakan (unplanned change)",
+                    "Perubahan sosial yang direncanakan (planned change)",
+                    "Perubahan regresif yang menurunkan efisiensi",
+                    "Perubahan lambat tanpa target waktu"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sedang",
+                topic: "Perubahan Direncanakan"
+            },
+            {
+                id: 10,
+                question: "Merebaknya krisis ekonomi global akibat wabah penyakit menular yang datang mendadak memaksa perusahaan melakukan pemutusan hubungan kerja (PHK) secara massal. Perubahan kondisi sosial ekonomi ini tergolong...",
+                options: [
+                    "Perubahan sosial yang direncanakan",
+                    "Perubahan sosial yang tidak direncanakan",
+                    "Perubahan evolusi yang lambat",
+                    "Perubahan kecil yang tidak berdampak luas"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sedang",
+                topic: "Perubahan Tidak Direncanakan"
+            },
+            {
+                id: 11,
+                question: "Perubahan masyarakat dari zaman berburu dan meramu hingga menjadi masyarakat agraris, kemudian berkembang menjadi masyarakat industri membutuhkan waktu bertiga-tiga abad. Perubahan sosial lambat ini disebut dengan...",
+                options: [
+                    "Revolusi sosial",
+                    "Evolusi sosial",
+                    "Inovasi terstruktur",
+                    "Modernisasi serentak"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Mudah",
+                topic: "Evolusi Sosial"
+            },
+            {
+                id: 12,
+                question: "Peristiwa Proklamasi Kemerdekaan Indonesia pada tanggal 17 Agustus 1945 mengubah tata hukum, tatanan politik, serta struktur pemerintahan kolonial menjadi negara berdaulat secara cepat. Perubahan cepat ini dikenal sebagai...",
+                options: [
+                    "Evolusi",
+                    "Revolusi",
+                    "Restrukturisasi lambat",
+                    "Asimilasi budaya"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Mudah",
+                topic: "Revolusi Sosial"
+            },
+            {
+                id: 13,
+                question: "Perubahan gaya rambut, potongan pakaian, atau tren warna pakaian di kalangan remaja setiap pergantian tahun umumnya tidak membawa pengaruh yang mendasar bagi struktur organisasi masyarakat. Hal ini termasuk...",
+                options: [
+                    "Perubahan sosial yang berpengaruh besar",
+                    "Perubahan sosial yang berpengaruh kecil",
+                    "Perubahan struktural nasional",
+                    "Revolusi kebudayaan"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Mudah",
+                topic: "Perubahan Pengaruh Kecil"
+            },
+            {
+                id: 14,
+                question: "Peralihan dari negara agraris menjadi negara industri yang mengandalkan mesin otomatis di pabrik-pabrik mengubah pola kerja, sistem gaji, hingga pergeseran mata pencaharian penduduk secara masif. Perubahan ini dikelompokkan sebagai...",
+                options: [
+                    "Perubahan pengaruh kecil",
+                    "Perubahan berpengaruh besar",
+                    "Perubahan regresif",
+                    "Perubahan yang tidak disengaja"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sedang",
+                topic: "Perubahan Pengaruh Besar"
+            },
+            {
+                id: 15,
+                question: "Modernisasi sering dikaitkan dengan perubahan pola pikir masyarakat dari pemikiran mistis dan tradisional menuju pemikiran rasional ilmiah. Hal yang menjadi ciri utama dari manusia modern adalah...",
+                options: [
+                    "Menolak seluruh nilai tradisi asli bangsa",
+                    "Mencintai barang impor bermerek dari luar negeri",
+                    "Memiliki orientasi masa depan dan efisiensi kerja",
+                    "Mengabaikan etika dan moral keagamaan"
+                ],
+                answerIndex: 2, // C
+                difficulty: "Sedang",
+                topic: "Modernisasi"
+            },
+            {
+                id: 16,
+                question: "Proses masuknya barang, informasi, tren mode, serta nilai-nilai luar negeri secara cepat dan menyatu tanpa batas wilayah negara akibat kemajuan teknologi komunikasi dinamakan...",
+                options: [
+                    "Urbaniasi",
+                    "Westernisasi",
+                    "Globalisasi",
+                    "Sekularisasi"
+                ],
+                answerIndex: 2, // C
+                difficulty: "Mudah",
+                topic: "Globalisasi"
+            },
+            {
+                id: 17,
+                question: "Kehadiran aplikasi angkutan umum berbasis daring (Ojek Online) memudahkan masyarakat memesan transportasi, makanan, serta mengirim barang secara efisien melalui genggaman HP. Dampak positif perubahan sosial dari kasus ini adalah...",
+                options: [
+                    "Meningkatnya angka kemacetan di jalan raya",
+                    "Peningkatan efisiensi, efektivitas, dan membuka lapangan kerja baru",
+                    "Penurunan konsumsi daya beli masyarakat",
+                    "Terjadinya ketimpangan sosial antar pengemudi"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sedang",
+                topic: "Dampak Positif Perubahan"
+            },
+            {
+                id: 18,
+                question: "Sebagian remaja lebih menyukai makanan cepat saji (fast food) dan merayakan tradisi luar negeri ketimbang mengonsumsi makanan tradisional atau mempelajari tarian daerahnya sendiri. Fenomena ini merupakan dampak negatif perubahan berupa...",
+                options: [
+                    "Konsumerisme dan luntur identitas budaya lokal",
+                    "Demoralisasi aparat penegak hukum",
+                    "Kesenjangan ekonomi antar daerah",
+                    "Kriminalitas berbasis cyber crime"
+                ],
+                answerIndex: 0, // A
+                difficulty: "Sedang",
+                topic: "Dampak Negatif / Westernisasi"
+            },
+            {
+                id: 19,
+                question: "Kemudahan berbelanja melalui platform e-commerce sering membuat seseorang membeli barang yang tidak dibutuhkan hanya karena tergiur diskon dan tren di media sosial. Sikap hidup boros dan mengutamakan keinginan di atas kebutuhan ini disebut...",
+                options: [
+                    "Individualisme",
+                    "Konsumerisme",
+                    "Hedonisme radikal",
+                    "Sekularisme"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sulit",
+                topic: "Konsumerisme"
+            },
+            {
+                id: 20,
+                question: "Pada masa pandemi, sekolah di seluruh Indonesia terpaksa memberlakukan Pembelajaran Jarak Jauh (PJJ) menggunakan Zoom dan Google Classroom. Dampak jangka panjang perubahan ini terhadap dunia pendidikan adalah...",
+                options: [
+                    "Kemunduran mutu pendidikan secara permanen di seluruh wilayah",
+                    "Akselerasi literasi digital guru dan siswa dalam memanfaatkan platform e-learning",
+                    "Hapusnya peran guru secara total digantikan oleh Artificial Intelligence",
+                    "Siswa tidak perlu lagi berinteraksi dengan teman sebaya"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sulit",
+                topic: "Analisis Kasus Pendidikan Digital"
+            },
+            {
+                id: 21,
+                question: "Dahulu, warga desa saling bahu-membahu secara sukarela mendirikan rumah tetangga (gotong royong). Kini, kegiatan tersebut lebih banyak digantikan dengan menyewa tenaga tukang profesional yang dibayar harian. Analisis sosial yang tepat terhadap kasus ini adalah...",
+                options: [
+                    "Terjadi pergeseran dari nilai sosial kekeluargaan menuju hubungan komersial rasional",
+                    "Masyarakat desa kehilangan rasa simpati dan empati antar sesama",
+                    "Sistem gotong royong terbukti melanggar norma hukum modern",
+                    "Masyarakat desa menjadi malas bekerja karena bergantung pada tukang"
+                ],
+                answerIndex: 0, // A
+                difficulty: "Sulit",
+                topic: "Analisis Nilai Tradisi ke Komersial"
+            },
+            {
+                id: 22,
+                question: "Anisa ingin memberikan kabar penting kepada sahabatnya di pulau lain. Dahulu ia harus mengirim surat lewat kantor pos yang memakan waktu seminggu. Sekarang Anisa cukup mengirim pesan melalui WhatsApp dan diterima seketika. Hal ini membuktikan bahwa perubahan sosial...",
+                options: [
+                    "Merusak keakraban hubungan antar manusia",
+                    "Mempermudah mobilitas dan efisiensi komunikasi antar wilayah",
+                    "Hanya berguna bagi masyarakat berpenghasilan tinggi",
+                    "Selalu menimbulkan gesekan norma moral di masyarakat"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Mudah",
+                topic: "Perubahan Pola Komunikasi"
+            },
+            {
+                id: 23,
+                question: "Penyebaran berita bohong (hoaks) dan ujaran kebencian berbasis SARA di media sosial sering memicu perpecahan serta bentrok antar warga di dunia nyata. Kasus tersebut merupakan contoh dari...",
+                options: [
+                    "Integrasi sosial yang semakin solid",
+                    "Disintegrasi sosial akibat penyalahgunaan teknologi informasi",
+                    "Revolusi kebudayaan positif",
+                    "Asimilasi budaya antar kelompok"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sulit",
+                topic: "Disintegrasi Sosial"
+            },
+            {
+                id: 24,
+                question: "Kondisi di mana perkembangan teknologi perbankan digital meluncur sangat cepat, namun pemahaman dan perlindungan hukum keamanan data warga masih tertinggal sehingga timbul maraknya penipuan online, dalam sosiologi dinamakan...",
+                options: [
+                    "Culture shock (guncangan budaya)",
+                    "Culture lag (ketimpangan budaya)",
+                    "Culture universal",
+                    "Anomi total"
+                ],
+                answerIndex: 1, // B
+                difficulty: "Sulit",
+                topic: "Ketimpangan Budaya (Culture Lag)"
+            },
+            {
+                id: 25,
+                question: "Sikap yang paling tepat dan bijak bagi seorang pelajar SMP dalam menghadapi gempuran globalisasi dan pengaruh budaya asing saat ini adalah...",
+                options: [
+                    "Menutup diri rapat-rapat dari semua kebudayaan luar negeri",
+                    "Menerima seluruh budaya asing tanpa menyaring demi dipuji modern",
+                    "Menyaring (memfilter) budaya asing sesuai nilai Pancasila dan kearifan lokal",
+                    "Meninggalkan seluruh tradisi daerah karena dianggap kuno"
+                ],
+                answerIndex: 2, // C
+                difficulty: "Sedang",
+                topic: "Sikap Selektif Terhadap Globalisasi"
+            }
+        ];
+
+        // GLOBAL STATE APPLICATION
+        window.state = {
+            student: {
+                name: '',
+                class: '',
+                absent: '',
+                startTime: null,
+                endTime: null,
+                answers: {}, // { qId: selectedOptionIndex }
+                shuffledQuestions: [], // [{...question, shuffledOptions: [{text, originalIndex}]}]
+            },
+            examDurationSeconds: 70 * 60, // 70 Menit
+            timerInterval: null,
+            autosaveInterval: null,
+            currentQuestionIdx: 0,
+            teacherPass: 'guru123',
+            kkm: 75,
+            attemptsList: [], // Data realtime dari Firestore/LocalStorage
+            sortScoreAsc: false,
+            activeTab: 'table'
+        };
+
+        // UI HELPERS
+        window.switchView = function(viewName) {
+            document.getElementById('view-student-login').classList.add('hidden');
+            document.getElementById('view-student-exam').classList.add('hidden');
+            document.getElementById('view-student-result').classList.add('hidden');
+            document.getElementById('view-teacher-login').classList.add('hidden');
+            document.getElementById('view-teacher-dashboard').classList.add('hidden');
+
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.showToast = function(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                info: 'bg-slate-800 text-white',
+                success: 'bg-emerald-600 text-white',
+                warning: 'bg-amber-500 text-slate-950 font-semibold',
+                error: 'bg-red-600 text-white'
+            };
+            toast.className = `${colors[type] || colors.info} px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2 pointer-events-auto transition-all transform translate-y-2 opacity-0`;
+            toast.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        };
+
+        window.openModal = function(id) {
+            document.getElementById(id)?.classList.remove('hidden');
+        };
+
+        window.closeModal = function(id) {
+            document.getElementById(id)?.classList.add('hidden');
+        };
+
+        // SHUFFLE ALGORITHM (Fisher-Yates)
+        function shuffleArray(arr) {
+            const array = [...arr];
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // PREPARE SHUFFLED QUESTIONS FOR STUDENT SESSION
+        function prepareExamQuestions() {
+            // Acak urutan 25 Soal
+            const shuffledQ = shuffleArray(QUESTION_BANK);
+
+            // Acak opsi pilihan A, B, C, D per soal
+            window.state.student.shuffledQuestions = shuffledQ.map(q => {
+                const optionsWithOrigIndex = q.options.map((optText, origIdx) => ({
+                    text: optText,
+                    originalIndex: origIdx
+                }));
+                const shuffledOpts = shuffleArray(optionsWithOrigIndex);
+
+                return {
+                    ...q,
+                    shuffledOptions: shuffledOpts
+                };
+            });
+        }
+
+        // START EXAM FLOW
+        window.startExam = function() {
+            const name = document.getElementById('input-student-name').value.trim();
+            const cls = document.getElementById('input-student-class').value;
+            const absent = document.getElementById('input-student-absent').value.trim();
+
+            if (!name || !cls || !absent) {
+                window.showToast('Harap lengkapi Nama, Kelas, dan Nomor Absen!', 'warning');
+                return;
+            }
+
+            window.state.student.name = name;
+            window.state.student.class = cls;
+            window.state.student.absent = String(absent).padStart(2, '0');
+            window.state.student.startTime = new Date().toISOString();
+            window.state.student.answers = {};
+
+            // Acak Soal dan Pilihan
+            prepareExamQuestions();
+
+            // Set Header UI Siswa
+            document.getElementById('exam-student-name').innerText = name;
+            document.getElementById('exam-student-class-info').innerText = `Kelas: ${cls} | No. Absen: ${window.state.student.absent}`;
+            document.getElementById('exam-avatar-absen').innerText = window.state.student.absent;
+
+            // Switch to Exam View
+            window.switchView('student-exam');
+
+            // Start Timer 70 Menit
+            startTimer(70 * 60);
+
+            // Render First Question & Navigator Grid
+            window.state.currentQuestionIdx = 0;
+            renderQuestion(0);
+            renderNavigatorGrid();
+
+            // Setup Autosave & Save Attempt Initial
+            saveStudentAttempt('Sedang Mengerjakan');
+            window.state.autosaveInterval = setInterval(() => {
+                saveStudentAttempt('Sedang Mengerjakan');
+            }, 15000); // Tiap 15 detik
+
+            window.showToast('Ujian dimulai. Selamat mengerjakan!', 'success');
+        };
+
+        // TIMER LOGIC
+        function startTimer(durationSeconds) {
+            let remaining = durationSeconds;
+            const timerDisplay = document.getElementById('exam-timer');
+            const timerBox = document.getElementById('timer-box');
+            const warningBanner = document.getElementById('time-warning-banner');
+            const warningText = document.getElementById('time-warning-text');
+
+            if (window.state.timerInterval) clearInterval(window.state.timerInterval);
+
+            window.state.timerInterval = setInterval(() => {
+                remaining--;
+
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+
+                timerDisplay.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                // Peringatan 10 Menit (600s)
+                if (remaining <= 600 && remaining > 300) {
+                    warningBanner.classList.remove('hidden');
+                    timerBox.classList.add('bg-amber-600');
+                    warningText.innerText = "Peringatan: Waktu pengerjaan tersisa kurang dari 10 menit!";
+                } 
+                // Peringatan 5 Menit (300s)
+                else if (remaining <= 300 && remaining > 0) {
+                    warningBanner.classList.remove('hidden');
+                    warningBanner.classList.replace('bg-amber-500', 'bg-red-600');
+                    warningBanner.classList.add('text-white');
+                    timerBox.classList.replace('bg-amber-600', 'bg-red-600');
+                    warningText.innerText = "PERINGATAN KRITIS: Waktu tersisa kurang dari 5 menit! Segera periksa jawaban Anda.";
+                }
+
+                // Waktu Habis (00:00)
+                if (remaining <= 0) {
+                    clearInterval(window.state.timerInterval);
+                    timerDisplay.innerText = "00:00";
+                    window.showToast("Waktu Ujian Habis! Jawaban Anda otomatis dikumpulkan.", "error");
+                    submitExamFinal(true); // Forced submit
+                }
+            }, 1000);
+        }
+
+        // RENDER QUESTION BY INDEX
+        function renderQuestion(idx) {
+            const qList = window.state.student.shuffledQuestions;
+            if (!qList || !qList[idx]) return;
+
+            const q = qList[idx];
+            document.getElementById('display-q-number').innerText = `Soal ${idx + 1} dari ${qList.length}`;
+            document.getElementById('display-q-difficulty').innerText = q.difficulty;
+            document.getElementById('display-q-text').innerText = q.question;
+
+            // Render Options
+            const optionsContainer = document.getElementById('display-q-options');
+            optionsContainer.innerHTML = '';
+
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            const currentSelectedOrigIdx = window.state.student.answers[q.id];
+
+            q.shuffledOptions.forEach((opt, optIdx) => {
+                const isSelected = (currentSelectedOrigIdx === opt.originalIndex);
+                
+                const optBtn = document.createElement('div');
+                optBtn.className = `p-4 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 ${
+                    isSelected 
+                        ? 'border-brand-600 bg-brand-50/60 ring-2 ring-brand-500/20' 
+                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                }`;
+
+                optBtn.onclick = () => selectAnswer(q.id, opt.originalIndex);
+
+                optBtn.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                        isSelected ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-700'
+                    }">
+                        ${optionLabels[optIdx]}
+                    </div>
+                    <div class="text-sm sm:text-base text-slate-800 pt-0.5 font-normal leading-snug">
+                        ${opt.text}
+                    </div>
+                `;
+                optionsContainer.appendChild(optBtn);
+            });
+
+            // Update Counter
+            const answeredCount = Object.keys(window.state.student.answers).length;
+            document.getElementById('display-answered-counter').innerText = `Sudah dijawab: ${answeredCount}/${qList.length}`;
+
+            // Update Navigation Buttons State
+            document.getElementById('btn-prev-question').disabled = (idx === 0);
+
+            const isLast = (idx === qList.length - 1);
+            if (isLast) {
+                document.getElementById('btn-next-question').classList.add('hidden');
+                document.getElementById('btn-submit-exam').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-next-question').classList.remove('hidden');
+                document.getElementById('btn-submit-exam').classList.add('hidden');
+            }
+
+            renderNavigatorGrid();
+        }
+
+        // SELECT ANSWER
+        function selectAnswer(qId, origOptIndex) {
+            window.state.student.answers[qId] = origOptIndex;
+            
+            // Re-render current question to highlight selected
+            renderQuestion(window.state.currentQuestionIdx);
+
+            // Trigger Autosave
+            triggerAutosaveBadge();
+            saveStudentAttempt('Sedang Mengerjakan');
+        }
+
+        window.navigateQuestion = function(direction) {
+            const nextIdx = window.state.currentQuestionIdx + direction;
+            if (nextIdx >= 0 && nextIdx < window.state.student.shuffledQuestions.length) {
+                window.state.currentQuestionIdx = nextIdx;
+                renderQuestion(nextIdx);
+            }
+        };
+
+        window.jumpToQuestion = function(idx) {
+            window.state.currentQuestionIdx = idx;
+            renderQuestion(idx);
+        };
+
+        // RENDER NAVIGATOR GRID
+        function renderNavigatorGrid() {
+            const grid = document.getElementById('navigator-grid');
+            if (!grid) return;
+
+            grid.innerHTML = '';
+            const qList = window.state.student.shuffledQuestions;
+            let answeredCount = 0;
+
+            qList.forEach((q, idx) => {
+                const isAnswered = window.state.student.answers.hasOwnProperty(q.id);
+                if (isAnswered) answeredCount++;
+
+                const isActive = (idx === window.state.currentQuestionIdx);
+
+                const btn = document.createElement('button');
+                btn.onclick = () => window.jumpToQuestion(idx);
+                btn.className = `h-10 rounded-xl font-bold text-xs transition relative flex items-center justify-center ${
+                    isActive ? 'ring-2 ring-brand-600 font-extrabold shadow-sm' : ''
+                } ${
+                    isAnswered 
+                        ? 'bg-brand-600 text-white' 
+                        : 'bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200'
+                }`;
+
+                btn.innerText = idx + 1;
+                grid.appendChild(btn);
+            });
+
+            // Update progress percentage
+            const pct = Math.round((answeredCount / qList.length) * 100);
+            document.getElementById('navigator-progress-percent').innerText = `${pct}%`;
+        }
+
+        window.toggleNavigatorDrawer = function() {
+            const drawer = document.getElementById('question-navigator-drawer');
+            drawer.classList.toggle('hidden');
+        };
+
+        function triggerAutosaveBadge() {
+            const badge = document.getElementById('autosave-indicator');
+            if (!badge) return;
+            badge.classList.remove('hidden');
+            setTimeout(() => {
+                badge.classList.add('hidden');
+            }, 2000);
+        }
+
+        // CONFIRM SUBMIT
+        window.confirmSubmitExam = function() {
+            const qList = window.state.student.shuffledQuestions;
+            const answered = Object.keys(window.state.student.answers).length;
+            const unanswered = qList.length - answered;
+
+            document.getElementById('modal-answered-count').innerText = `${answered} / ${qList.length}`;
+            document.getElementById('modal-unanswered-count').innerText = unanswered;
+
+            window.openModal('modal-submit-confirm');
+        };
+
+        // SUBMIT EXAM FINAL
+        window.submitExamFinal = function(isTimeOut = false) {
+            window.closeModal('modal-submit-confirm');
+
+            if (window.state.timerInterval) clearInterval(window.state.timerInterval);
+            if (window.state.autosaveInterval) clearInterval(window.state.autosaveInterval);
+
+            window.state.student.endTime = new Date().toISOString();
+
+            // Hitung Skor & Breakdown
+            const qList = window.state.student.shuffledQuestions;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unansweredCount = 0;
+
+            qList.forEach(q => {
+                const userAns = window.state.student.answers[q.id];
+                if (userAns === undefined) {
+                    unansweredCount++;
+                } else if (userAns === q.answerIndex) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            });
+
+            const score = (correctCount / qList.length) * 100;
+
+            const finalStatus = isTimeOut ? 'Waktu Habis' : 'Selesai';
+
+            // Simpan ke State & Cloud Database
+            const resultData = {
+                name: window.state.student.name,
+                class: window.state.student.class,
+                absent: window.state.student.absent,
+                startTime: window.state.student.startTime,
+                endTime: window.state.student.endTime,
+                durationMinutes: calculateDuration(window.state.student.startTime, window.state.student.endTime),
+                correct: correctCount,
+                incorrect: incorrectCount,
+                unanswered: unansweredCount,
+                score: Number(score.toFixed(1)),
+                status: finalStatus,
+                answers: window.state.student.answers
+            };
+
+            saveStudentAttempt(finalStatus, resultData);
+
+            // Populasikan Halaman Hasil Siswa
+            document.getElementById('res-student-name').innerText = resultData.name;
+            document.getElementById('res-student-class').innerText = `${resultData.class} (No. Absen: ${resultData.absent})`;
+            document.getElementById('res-student-time').innerText = new Date(resultData.endTime).toLocaleTimeString('id-ID');
+            document.getElementById('res-student-duration').innerText = `${resultData.durationMinutes} Menit`;
+            
+            document.getElementById('res-score-number').innerText = resultData.score.toFixed(1);
+            document.getElementById('res-correct-count').innerText = resultData.correct;
+            document.getElementById('res-incorrect-count').innerText = resultData.incorrect;
+            document.getElementById('res-unanswered-count').innerText = resultData.unanswered;
+
+            window.switchView('student-result');
+        };
+
+        function calculateDuration(startStr, endStr) {
+            if (!startStr || !endStr) return 0;
+            const diffMs = new Date(endStr) - new Date(startStr);
+            return Math.max(1, Math.round(diffMs / (1000 * 60)));
+        }
+
+        // FIREBASE & LOCALSTORAGE ATTEMPT SAVING
+        async function saveStudentAttempt(status, customData = null) {
+            const student = window.state.student;
+            if (!student.name) return;
+
+            const docId = `${student.class}_${student.absent}_${student.name.replace(/\s+/g, '_')}`;
+
+            const qList = student.shuffledQuestions;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unansweredCount = 0;
+
+            if (qList && qList.length) {
+                qList.forEach(q => {
+                    const userAns = student.answers[q.id];
+                    if (userAns === undefined) {
+                        unansweredCount++;
+                    } else if (userAns === q.answerIndex) {
+                        correctCount++;
+                    } else {
+                        incorrectCount++;
+                    }
+                });
+            }
+
+            const total = qList && qList.length ? qList.length : 25;
+            const score = (correctCount / total) * 100;
+
+            const payload = customData || {
+                name: student.name,
+                class: student.class,
+                absent: student.absent,
+                startTime: student.startTime,
+                endTime: student.endTime || null,
+                durationMinutes: student.endTime ? calculateDuration(student.startTime, student.endTime) : calculateDuration(student.startTime, new Date().toISOString()),
+                correct: correctCount,
+                incorrect: incorrectCount,
+                unanswered: unansweredCount,
+                score: Number(score.toFixed(1)),
+                status: status,
+                answers: student.answers,
+                updatedAt: new Date().toISOString()
+            };
+
+            // LocalStorage Save Sync
+            let localData = JSON.parse(localStorage.getItem('ips_exam_attempts') || '{}');
+            localData[docId] = payload;
+            localStorage.setItem('ips_exam_attempts', JSON.stringify(localData));
+
+            // Firestore Realtime Save Sync
+            if (db && currentUser) {
+                try {
+                    const attemptRef = doc(db, 'artifacts', appId, 'public', 'data', 'attempts', docId);
+                    await setDoc(attemptRef, payload, { merge: true });
+                } catch (e) {
+                    console.warn("Firestore save fallback to local storage:", e);
+                }
+            }
+        }
+
+        // LISTEN TO REALTIME ATTEMPTS FOR TEACHER DASHBOARD
+        function listenToTeacherData() {
+            if (db) {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'attempts');
+                    onSnapshot(colRef, (snapshot) => {
+                        const list = [];
+                        snapshot.forEach(docSnap => {
+                            list.push(docSnap.data());
+                        });
+                        window.state.attemptsList = list;
+                        renderTeacherDashboard();
+                    }, (err) => {
+                        console.warn("Realtime listener warning, fallback to LocalStorage:", err);
+                        loadLocalTeacherData();
+                    });
+                } catch (err) {
+                    loadLocalTeacherData();
+                }
+            } else {
+                loadLocalTeacherData();
+            }
+        }
+
+        function loadLocalTeacherData() {
+            const localData = JSON.parse(localStorage.getItem('ips_exam_attempts') || '{}');
+            window.state.attemptsList = Object.values(localData);
+            renderTeacherDashboard();
+        }
+
+        // TEACHER AUTH & DASHBOARD
+        window.verifyTeacherPass = function() {
+            const pass = document.getElementById('input-teacher-pass').value;
+            if (pass === window.state.teacherPass) {
+                window.switchView('teacher-dashboard');
+                loadLocalTeacherData();
+                window.showToast('Login Pengajar Berhasil!', 'success');
+            } else {
+                window.showToast('PIN Password Pengajar Salah!', 'error');
+            }
+        };
+
+        function renderTeacherDashboard() {
+            const list = window.state.attemptsList || [];
+
+            // Compute KPIs
+            const total = list.length;
+            const completed = list.filter(a => a.status === 'Selesai' || a.status === 'Waktu Habis').length;
+            const inProgress = list.filter(a => a.status === 'Sedang Mengerjakan').length;
+
+            const scores = list.filter(a => a.status !== 'Sedang Mengerjakan').map(a => a.score || 0);
+            const avg = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : 0;
+            const max = scores.length ? Math.max(...scores) : 0;
+            const min = scores.length ? Math.min(...scores) : 0;
+
+            const kkmVal = window.state.kkm;
+            const passedCount = scores.filter(s => s >= kkmVal).length;
+            const passingRate = scores.length ? Math.round((passedCount / scores.length) * 100) : 0;
+
+            document.getElementById('kpi-total-students').innerText = total;
+            document.getElementById('kpi-completed-students').innerText = completed;
+            document.getElementById('kpi-in-progress-students').innerText = inProgress;
+            document.getElementById('kpi-avg-score').innerText = avg;
+            document.getElementById('kpi-max-score').innerText = max;
+            document.getElementById('kpi-min-score').innerText = min;
+            document.getElementById('kpi-passing-rate').innerText = `${passingRate}%`;
+
+            renderTeacherTable();
+            renderItemAnalysis();
+        }
+
+        window.renderTeacherTable = function() {
+            const body = document.getElementById('teacher-table-body');
+            const emptyMsg = document.getElementById('teacher-table-empty');
+            if (!body) return;
+
+            let list = [...(window.state.attemptsList || [])];
+
+            // Filtering Search, Class, and Status
+            const searchVal = document.getElementById('teacher-search')?.value.toLowerCase().trim() || '';
+            const filterClass = document.getElementById('teacher-filter-class')?.value || 'ALL';
+            const filterStatus = document.getElementById('teacher-filter-status')?.value || 'ALL';
+
+            if (searchVal) {
+                list = list.filter(a => (a.name || '').toLowerCase().includes(searchVal));
+            }
+
+            if (filterClass !== 'ALL') {
+                list = list.filter(a => a.class === filterClass);
+            }
+
+            if (filterStatus !== 'ALL') {
+                list = list.filter(a => a.status === filterStatus);
+            }
+
+            // Sorting by score
+            if (window.state.sortScoreAsc) {
+                list.sort((a, b) => (a.score || 0) - (b.score || 0));
+            } else {
+                list.sort((a, b) => (b.score || 0) - (a.score || 0));
+            }
+
+            if (list.length === 0) {
+                body.innerHTML = '';
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+
+            emptyMsg.classList.add('hidden');
+            body.innerHTML = '';
+
+            list.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+
+                // Status Badge Color
+                let statusBadge = '';
+                if (item.status === 'Selesai') {
+                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Selesai</span>';
+                } else if (item.status === 'Sedang Mengerjakan') {
+                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 animate-pulse">Sedang Ujian</span>';
+                } else {
+                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">Waktu Habis</span>';
+                }
+
+                // KKM Tag
+                const isPassed = (item.score || 0) >= window.state.kkm;
+                const kkmTag = isPassed 
+                    ? '<span class="text-[10px] font-bold text-emerald-600 block">Tuntas</span>'
+                    : '<span class="text-[10px] font-bold text-red-500 block">Belum Tuntas</span>';
+
+                const startTimeFormatted = item.startTime ? new Date(item.startTime).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '-';
+                const endTimeFormatted = item.endTime ? new Date(item.endTime).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '-';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-slate-500">${idx + 1}</td>
+                    <td class="py-3 px-4 font-bold text-slate-900">${item.name}</td>
+                    <td class="py-3 px-4 font-semibold text-brand-700">${item.class}</td>
+                    <td class="py-3 px-4 text-center font-mono">${item.absent}</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">${startTimeFormatted}</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">${endTimeFormatted}</td>
+                    <td class="py-3 px-4 text-xs text-slate-600 font-medium">${item.durationMinutes || 0} mnt</td>
+                    <td class="py-3 px-4 text-center text-xs font-bold">
+                        <span class="text-emerald-600">${item.correct || 0}</span> / 
+                        <span class="text-red-500">${item.incorrect || 0}</span> / 
+                        <span class="text-amber-500">${item.unanswered || 0}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <span class="text-base font-extrabold text-slate-900">${(item.score || 0).toFixed(1)}</span>
+                        ${kkmTag}
+                    </td>
+                    <td class="py-3 px-4 text-center">${statusBadge}</td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="deleteStudentAttempt('${item.class}_${item.absent}_${item.name.replace(/\s+/g, '_')}')" 
+                            class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition" title="Hapus Data">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+
+            if (window.lucide) window.lucide.createIcons();
+        };
+
+        window.toggleSortScore = function() {
+            window.state.sortScoreAsc = !window.state.sortScoreAsc;
+            window.renderTeacherTable();
+        };
+
+        window.updateKKM = function(val) {
+            window.state.kkm = Number(val) || 75;
+            renderTeacherDashboard();
+            window.showToast(`KKM diperbarui ke ${window.state.kkm}`, 'info');
+        };
+
+        window.switchTeacherTab = function(tabName) {
+            window.state.activeTab = tabName;
+            document.getElementById('teacher-tab-table').classList.toggle('hidden', tabName !== 'table');
+            document.getElementById('teacher-tab-analytics').classList.toggle('hidden', tabName !== 'analytics');
+
+            document.getElementById('tab-btn-table').className = tabName === 'table' ? 'px-3 py-1.5 rounded-lg bg-brand-600 text-white font-semibold' : 'px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold';
+            document.getElementById('tab-btn-analytics').className = tabName === 'analytics' ? 'px-3 py-1.5 rounded-lg bg-brand-600 text-white font-semibold' : 'px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold';
+        };
+
+        // ITEM ANALYSIS GENERATOR
+        function renderItemAnalysis() {
+            const container = document.getElementById('item-analysis-container');
+            if (!container) return;
+
+            const attempts = window.state.attemptsList || [];
+            container.innerHTML = '';
+
+            QUESTION_BANK.forEach((q, idx) => {
+                let choiceA = 0, choiceB = 0, choiceC = 0, choiceD = 0, unanswered = 0;
+
+                attempts.forEach(att => {
+                    if (att.answers && att.answers[q.id] !== undefined) {
+                        const ans = att.answers[q.id];
+                        if (ans === 0) choiceA++;
+                        else if (ans === 1) choiceB++;
+                        else if (ans === 2) choiceC++;
+                        else if (ans === 3) choiceD++;
+                    } else {
+                        unanswered++;
+                    }
+                });
+
+                const totalAtt = attempts.length || 1;
+                const correctCount = [choiceA, choiceB, choiceC, choiceD][q.answerIndex] || 0;
+                const correctPct = Math.round((correctCount / totalAtt) * 100);
+
+                const card = document.createElement('div');
+                card.className = 'p-4 rounded-xl border border-slate-200 bg-slate-50 text-xs space-y-2';
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between font-bold text-slate-800">
+                        <span>Soal No. ${idx + 1} (${q.topic})</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] ${correctPct >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${correctPct}% Dijawab Benar
+                        </span>
+                    </div>
+                    <p class="text-slate-600 line-clamp-2">${q.question}</p>
+                    <div class="grid grid-cols-5 gap-1.5 pt-1 text-center font-mono">
+                        <div class="p-1 rounded ${q.answerIndex === 0 ? 'bg-emerald-600 text-white font-bold' : 'bg-white border border-slate-200'}">A: ${choiceA}</div>
+                        <div class="p-1 rounded ${q.answerIndex === 1 ? 'bg-emerald-600 text-white font-bold' : 'bg-white border border-slate-200'}">B: ${choiceB}</div>
+                        <div class="p-1 rounded ${q.answerIndex === 2 ? 'bg-emerald-600 text-white font-bold' : 'bg-white border border-slate-200'}">C: ${choiceC}</div>
+                        <div class="p-1 rounded ${q.answerIndex === 3 ? 'bg-emerald-600 text-white font-bold' : 'bg-white border border-slate-200'}">D: ${choiceD}</div>
+                        <div class="p-1 rounded bg-slate-200 text-slate-700">N/A: ${unanswered}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.deleteStudentAttempt = function(docId) {
+            if (!confirm("Apakah Anda yakin ingin menghapus data peserta ini?")) return;
+
+            let localData = JSON.parse(localStorage.getItem('ips_exam_attempts') || '{}');
+            delete localData[docId];
+            localStorage.setItem('ips_exam_attempts', JSON.stringify(localData));
+
+            loadLocalTeacherData();
+            window.showToast("Data siswa berhasil dihapus", "info");
+        };
+
+        // EXPORT TO EXCEL (.XLSX MULTI-SHEET)
+        window.exportToExcel = function() {
+            const list = window.state.attemptsList || [];
+            if (list.length === 0) {
+                window.showToast("Tidak ada data siswa untuk diekspor!", "warning");
+                return;
+            }
+
+            // Sheet 1: Rekap Nilai Siswa
+            const sheet1Data = list.map((item, idx) => ({
+                "No": idx + 1,
+                "Nama Lengkap": item.name,
+                "Kelas": item.class,
+                "Nomor Absen": item.absent,
+                "Waktu Mulai": item.startTime ? new Date(item.startTime).toLocaleString('id-ID') : '-',
+                "Waktu Selesai": item.endTime ? new Date(item.endTime).toLocaleString('id-ID') : '-',
+                "Durasi (Menit)": item.durationMinutes || 0,
+                "Jumlah Benar": item.correct || 0,
+                "Jumlah Salah": item.incorrect || 0,
+                "Tidak Dijawab": item.unanswered || 0,
+                "Nilai Akhir": item.score || 0,
+                "Status KKM": (item.score || 0) >= window.state.kkm ? "Tuntas" : "Belum Tuntas",
+                "Status Pengerjaan": item.status
+            }));
+
+            // Sheet 2: Analisis Butir Soal
+            const sheet2Data = QUESTION_BANK.map((q, idx) => {
+                let choiceA = 0, choiceB = 0, choiceC = 0, choiceD = 0, unanswered = 0;
+
+                list.forEach(att => {
+                    if (att.answers && att.answers[q.id] !== undefined) {
+                        const ans = att.answers[q.id];
+                        if (ans === 0) choiceA++;
+                        else if (ans === 1) choiceB++;
+                        else if (ans === 2) choiceC++;
+                        else if (ans === 3) choiceD++;
+                    } else {
+                        unanswered++;
+                    }
+                });
+
+                const totalAtt = list.length || 1;
+                const correctCount = [choiceA, choiceB, choiceC, choiceD][q.answerIndex] || 0;
+                const correctPct = Math.round((correctCount / totalAtt) * 100);
+
+                return {
+                    "No Soal": idx + 1,
+                    "Topik Materi": q.topic,
+                    "Tingkat Kesulitan": q.difficulty,
+                    "Jawaban Benar": ['A', 'B', 'C', 'D'][q.answerIndex],
+                    "Memilih A": choiceA,
+                    "Memilih B": choiceB,
+                    "Memilih C": choiceC,
+                    "Memilih D": choiceD,
+                    "Tidak Menjawab": unanswered,
+                    "Persentase Benar": `${correctPct}%`
+                };
+            });
+
+            // Generate Workbook dengan SheetJS
+            const wb = XLSX.utils.book_new();
+            const ws1 = XLSX.utils.json_to_sheet(sheet1Data);
+            const ws2 = XLSX.utils.json_to_sheet(sheet2Data);
+
+            XLSX.utils.book_append_sheet(wb, ws1, "Rekap Nilai Siswa");
+            XLSX.utils.book_append_sheet(wb, ws2, "Analisis Butir Soal");
+
+            const fileName = `Rekap_Nilai_IPS_Perubahan_Sosial_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            window.showToast("File Excel berhasil diunduh!", "success");
+        };
+
+        // DEPLOYMENT MODAL URL
+        window.openDeploymentModal = function() {
+            document.getElementById('current-url-display').value = window.location.href;
+            window.openModal('modal-deployment');
+        };
+
+        window.copyAppUrl = function() {
+            const copyText = document.getElementById("current-url-display");
+            copyText.select();
+            document.execCommand("copy");
+            window.showToast("Link aplikasi berhasil disalin!", "success");
+        };
+
+        // INITIALIZATION ON LOAD
+        window.onload = function() {
+            if (window.lucide) window.lucide.createIcons();
+            loadLocalTeacherData();
+        };
+    </script>
+</body>
+</html>
